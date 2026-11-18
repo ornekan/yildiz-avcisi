@@ -1,11 +1,10 @@
 {
-  "name": "Yıldız Avcısı",
-  "short_name": "Yıldız Avcısı",
+  "name": "Oda Ligi",
+  "short_name": "Oda Ligi",
   "start_url": "./",
-  "display": "fullscreen",
-  "orientation": "portrait",
-  "background_color": "#0b1026",
-  "theme_color": "#0b1026",
+  "display": "standalone",
+  "background_color": "#11131a",
+  "theme_color": "#11131a",
   "icons": [
     {"src": "icon-180.png", "sizes": "180x180", "type": "image/png"},
     {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"}
