@@ -64,6 +64,36 @@ tbody tr:first-child td{background:#ffd84d10}
 #confirm button{flex:1;padding:12px;border-radius:10px;border:none;font-weight:800;font-size:15px}
 #yes{background:#c0392b;color:#fff}#no{background:#3a3f52;color:#fff}
 .hidden{display:none!important}
+.tools button{font-size:13px;padding:11px 4px}
+#upd{position:fixed;inset:0;z-index:60;background:#000c;display:flex;align-items:center;justify-content:center;padding:20px}
+#upd .dlg{background:#1b1e29;border:2px solid #ffd84d;border-radius:18px;padding:20px;max-width:320px;text-align:center}
+#upd p{font-size:14px;opacity:.8}#upd button{padding:12px 24px;border:none;border-radius:99px;background:#ffd84d;color:#2a1600;font-weight:900;font-size:16px}
+.bk{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#232737;border-radius:10px;padding:10px;margin-top:8px}
+.bk small{display:block;font-size:12px;opacity:.65}.bk button{padding:9px 12px;border-radius:9px;border:1px solid #ffd84d66;background:#ffd84d14;color:#ffd84d;font-weight:800}
+.melock{display:inline-block;padding:7px 14px;border-radius:99px;background:var(--c);font-weight:800;font-size:14px}
+#meBtns .pick{border:2px solid #ffd84d;background:#ffd84d22;color:#ffd84d;border-radius:99px;padding:7px 14px;font-weight:800}
+#welcome{position:fixed;inset:0;z-index:40;background:radial-gradient(circle at 50% 30%,#1d2b6b,#090b14);display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);overflow:auto}
+.wbox{max-width:520px;width:100%;text-align:center}
+.wbox h2{margin:0 0 6px;font-size:26px;background:linear-gradient(90deg,#ffd84d,#ff9a3d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wbox p{opacity:.75;font-size:14px;margin:0 0 16px}
+#wCards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#wCards button{border:3px solid var(--c);background:#1b1e29;border-radius:18px;padding:10px 8px 12px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px}
+#wCards img{width:100%;height:150px;object-fit:cover;object-position:50% 0;border-radius:12px;background:#2a2e3d}
+#wCards b{font-size:18px}#wCards small{font-size:12px;opacity:.75}
+#wCards button:active{transform:scale(.96)}
+#wSkip{margin-top:18px;background:none;border:none;color:#aaa;text-decoration:underline;font-size:14px}
+#pinBox{position:fixed;inset:0;z-index:45;background:#000c;display:flex;align-items:center;justify-content:center;padding:20px}
+#pinBox .dlg{background:#1b1e29;border-radius:20px;padding:20px;max-width:330px;width:100%;text-align:center}
+#pinBox .dlg.err{animation:shk .4s}
+#pinBox h3{margin:0 0 14px;font-size:18px}
+#pinDots{display:flex;gap:14px;justify-content:center;margin:6px 0 10px}
+#pinDots i{width:16px;height:16px;border-radius:50%;border:2px solid #ffd84d}
+#pinDots i.on{background:#ffd84d}
+#pinNote{font-size:12px;opacity:.7;min-height:32px;margin:0 0 10px}
+#pinPad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+#pinPad button{height:58px;border-radius:14px;border:none;background:#2a2e3d;color:#fff;font-size:24px;font-weight:800}
+#pinPad button.sm{font-size:15px;background:#232737;color:#bbb}
+#pinPad button:active{background:#3a3f52}
 .hr{display:flex;gap:8px;align-items:center}
 #mute{border:none;background:#2a2e3d;color:#fff;border-radius:99px;width:36px;height:30px;font-size:16px}
 #meBtns button.taken{opacity:.45;border-style:dashed}
@@ -395,12 +425,23 @@ tbody tr:first-child td{background:#ffd84d10}
   <div class="box">
     <div id="tabs"><button data-tab="team">🛡️ Takım Ligi</button><button data-tab="ind">👤 Bireysel</button><button data-tab="gol">⚽ Gol Krallığı</button></div>
     <div id="tableBox"></div>
-    <div class="tools"><button id="undo">↩︎ Son Maçı Geri Al</button><button id="reset">Ligi Sıfırla</button></div>
+    <div class="tools"><button id="undo">↩︎ Son Maçı Geri Al</button><button id="backups">🗄️ Yedekler</button><button id="reset">Ligi Sıfırla</button></div>
     <div class="seasonrow"><span id="season"></span><span>Takım ligi: 31 puan = ⭐ · Gol kralı = 👟</span></div>
   </div>
   <div class="tips">İpuçları: Karakterlere dokun, konuşsunlar · Dart tahtasına dokun, ok at · Kediyi sev 🐈 · Sesler için telefonun sessiz modda olmasın 🔊</div>
 </div>
 <div id="toast"></div>
+<div id="upd" class="hidden"><div class="dlg"><b>🔄 Yeni sürüm var</b><p>Verilerin güvende. Bu telefondaki uygulama eski; güncellemeden puan girilemez.</p><button id="updBtn">Şimdi Güncelle</button></div></div>
+<div id="bkm" class="modal hidden"><div class="dlg"><h3>🗄️ Otomatik Yedekler</h3><p class="note">Her gün ilk maç girilirken otomatik yedek alınır (son 14 gün). Geri dönmek için diğer 3 oyuncunun onayı gerekir. Yıldızlar, ayakkabılar ve PIN'ler korunur.</p><div id="bkList"></div><div class="row"><button class="cancel">Kapat</button></div></div></div>
+<div id="welcome" class="hidden"><div class="wbox">
+  <h2>Oda Ligi'ne hoş geldin!</h2><p>Sen kimsin? Bir kez seçeceksin, bu telefon kalıcı olarak sana bağlanacak.</p>
+  <div id="wCards"></div>
+  <button id="wSkip">Sadece izle</button>
+</div></div>
+<div id="pinBox" class="hidden"><div class="dlg">
+  <h3 id="pinTitle"></h3><div id="pinDots"></div><p id="pinNote"></p>
+  <div id="pinPad"><button data-n="1">1</button><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button><button data-n="7">7</button><button data-n="8">8</button><button data-n="9">9</button><button data-x="cancel" class="sm">Vazgeç</button><button data-n="0">0</button><button data-x="del" class="sm">⌫</button></div>
+</div></div>
 <button id="fab" aria-label="Maç Yap"><span>🎮</span><small>Maç Yap</small></button>
 <div id="nm" class="modal hidden"><div class="dlg">
   <h3>🎮 Maç Yap</h3>
@@ -452,7 +493,8 @@ function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const pts=s=>s.g*3+s.b;
 // ================= SES MOTORU =================
-let MUTED=false;try{MUTED=localStorage.getItem('odaLigi_mute')==='1'}catch(e){}
+let MUTED=false,NOVOICE=false;try{MUTED=localStorage.getItem('odaLigi_mute')==='1';NOVOICE=localStorage.getItem('odaLigi_novoice')==='1'}catch(e){}
+let SAYQ=false;
 let AC=null,NB=null;
 function ac_(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}return AC}
 function tone(f,d,type='sine',v=.12,delay=0,f2=null){if(MUTED)return;const c=ac_();if(!c)return;try{const t=c.currentTime+delay;const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(c.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
@@ -484,19 +526,25 @@ const SFX={
 };
 // ---- Türkçe konuşma ----
 let trVoice=null;
-function pickVoice(){try{const vs=speechSynthesis.getVoices();trVoice=vs.find(v=>/^tr/i.test(v.lang))||null}catch(e){}}
+function pickVoice(){try{const vs=speechSynthesis.getVoices().filter(v=>/^tr/i.test(v.lang));
+  const score=v=>(/(cem|ahmet|emre|tolga|mehmet|kerem|murat|ozan|male|erkek)/i.test(v.name)?100:0)+(/(premium|enhanced|gelişmiş|neural|natural|google)/i.test(v.name)?50:0)+(v.localService?0:5);
+  vs.sort((a,b)=>score(b)-score(a));trVoice=vs[0]||null}catch(e){}}
 try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice()}catch(e){}
 let ttsReady=false;function ttsUnlock(){if(ttsReady)return;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);ttsReady=true}catch(e){}}
-const VOICE={anil:{p:1.05,r:1.05},hakan:{p:.8,r:1},yakup:{p:.6,r:1.05},soner:{p:1.35,r:1.08},spiker:{p:1.15,r:1.12},kedi:{p:2,r:1.2}};
+const VOICE={anil:{p:1,r:1.02},hakan:{p:.95,r:.98},yakup:{p:.92,r:1},soner:{p:1.04,r:1.04},spiker:{p:1,r:1.06},kedi:{p:1.6,r:1.1}};
 function speak(who,text,{force=false,prio=false}={}){
-  if(MUTED||!('speechSynthesis' in window))return;
+  if(MUTED||NOVOICE||!('speechSynthesis' in window))return;
   try{if(prio)speechSynthesis.cancel();else if(!force&&(speechSynthesis.speaking||speechSynthesis.pending))return;
     const clean=String(text).replace(/[\u{1F000}-\u{1FAFF}☀-➿️]/gu,'').trim();if(!clean)return;
     const u=new SpeechSynthesisUtterance(clean);u.lang='tr-TR';if(trVoice)u.voice=trVoice;const v=VOICE[who]||VOICE.spiker;u.pitch=v.p;u.rate=v.r;u.volume=1;speechSynthesis.speak(u)}catch(e){}
 }
 document.addEventListener('pointerdown',()=>{ac_();ttsUnlock()},{passive:true});
 document.addEventListener('click',e=>{if(e.target.closest('button'))SFX.click()});
-function setMute(m){MUTED=m;try{localStorage.setItem('odaLigi_mute',m?'1':'0')}catch(e){}const b=document.getElementById('mute');if(b)b.textContent=m?'🔇':'🔊';if(m){try{speechSynthesis.cancel()}catch(e){}}}
+// 3 kademe: 🔊 her şey · 🎵 sadece efektler (konuşma kapalı) · 🔇 hepsi kapalı
+function soundMode(){return MUTED?2:NOVOICE?1:0}
+function setSoundMode(k){MUTED=k===2;NOVOICE=k===1;try{localStorage.setItem('odaLigi_mute',MUTED?'1':'0');localStorage.setItem('odaLigi_novoice',NOVOICE?'1':'0')}catch(e){}
+  const b=document.getElementById('mute');if(b)b.textContent=['🔊','🎵','🔇'][k];if(k){try{speechSynthesis.cancel()}catch(e){}}}
+function setMute(m){setSoundMode(m?2:soundMode())}
 
 
 // zemin sınırları ve derinlik ölçeği
@@ -506,7 +554,8 @@ function clampFloor(x,y){y=Math.max(FY0,Math.min(FY1,y));x=Math.max(50,Math.min(
 const scaleAt=y=>0.7+0.3*(y-760)/205;
 
 // ================= DURUM =================
-function fresh(){return {hist:[],cig:'yakup',cigOwners:P.map(p=>p.id),puffs:0,devices:{},tur:0,last:null,live:{},req:{},stars:{pati:0,behrem:0},boots:{},tboots:{},awards:null,season:1,
+const APP_VER=9;
+function fresh(){return {hist:[],cig:'yakup',cigOwners:P.map(p=>p.id),puffs:0,devices:{},players:{},tur:0,last:null,live:{},req:{},stars:{pati:0,behrem:0},boots:{},tboots:{},awards:null,season:1,
   pos:Object.fromEntries(P.map(p=>[p.id,{x:p.home[0],y:p.home[1]}]))}}
 const toArr=v=>Array.isArray(v)?v:(v?Object.values(v):[]);
 function normMatch(m){if(!m||!m.type||!m.a||!m.b)return null;const g={};Object.entries(m.goals||{}).forEach(([k,v])=>{if(+v>0)g[k]=+v});
@@ -517,13 +566,32 @@ function norm(s){
   const cig=typeof s.cig==='number'?(P[s.cig]||P[2]).id:(ids.includes(s.cig)?s.cig:f.cig);
   const owners=toArr(s.cigOwners).filter(x=>ids.includes(x));
   const devices={};Object.entries(s.devices||{}).forEach(([k,v])=>{if(ids.includes(k)&&typeof v==='string')devices[k]=v});
-  const out={hist:toArr(s.hist).map(normMatch).filter(Boolean),cig,cigOwners:owners.length?owners:f.cigOwners,puffs:s.puffs||0,devices,tur:s.tur||0,last:s.last||null,live:{},req:{},
+  const players={};Object.entries(s.players||{}).forEach(([k,v])=>{if(ids.includes(k)&&v){const dd={};Object.keys(v.d||{}).forEach(x=>dd[x]=1);players[k]={h:v.h||null,d:dd}}});
+  const out={hist:toArr(s.hist).map(normMatch).filter(Boolean),cig,cigOwners:owners.length?owners:f.cigOwners,puffs:s.puffs||0,devices,players,tur:s.tur||0,last:s.last||null,live:{},req:{},
     stars:{pati:(s.stars||{}).pati||0,behrem:(s.stars||{}).behrem||0},boots:{},tboots:{},awards:s.awards||null,season:s.season||1,pos:{}};
   P.forEach(p=>{out.boots[p.id]=(s.boots||{})[p.id]||0;out.tboots[p.id]=(s.tboots||{})[p.id]||0;const q=(s.pos||{})[p.id];out.pos[p.id]=(q&&isFinite(q.x)&&isFinite(q.y))?{x:+q.x,y:+q.y}:f.pos[p.id]});
   Object.entries(s.live||{}).forEach(([k,m])=>{if(m&&m.type&&m.a&&m.b)out.live[k]={type:m.type,a:m.a,b:m.b,t:m.t||0,pending:m.pending||null}});
-  Object.entries(s.req||{}).forEach(([k,q])=>{if(q&&q.by&&q.kind)out.req[k]={kind:q.kind,by:q.by,need:toArr(q.need),min:q.min||1,votes:q.votes||{},liveId:q.liveId||null,match:q.match?normMatch(q.match):null,t:q.t||0}});
+  Object.entries(s.req||{}).forEach(([k,q])=>{if(q&&q.by&&q.kind)out.req[k]={kind:q.kind,by:q.by,need:toArr(q.need),min:q.min||1,votes:q.votes||{},liveId:q.liveId||null,match:q.match?normMatch(q.match):null,day:q.day||null,t:q.t||0}});
   Object.values(out.live).forEach(L=>{if(L.pending&&!out.req[L.pending])L.pending=null});
+  out.minVer=s.minVer||0;out._bk=(s._bk&&typeof s._bk==='object')?s._bk:{};
+  // tanınmayan alanları silme: olduğu gibi koru (ileriki sürümlerin verisi kaybolmasın)
+  for(const k in s)if(!(k in out))out[k]=s[k];
   return out;
+}
+const BK_FIELDS=['hist','stars','boots','tboots','awards','season','cig','cigOwners','puffs'];
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function backupInto(s,before){
+  const day=today();if(s._bk[day])return;
+  const snap={t:Date.now()};BK_FIELDS.forEach(k=>snap[k]=JSON.parse(JSON.stringify(before[k]??null)));
+  if(!snap.hist||!snap.hist.length){if(!Object.values(before.stars||{}).some(Boolean))return}
+  s._bk[day]=snap;
+  const days=Object.keys(s._bk).sort();while(days.length>14)delete s._bk[days.shift()];
+}
+function requestRestore(day){
+  if(!me){hintPick();return}
+  change(s=>{if(!s._bk[day]||Object.values(s.req).some(q=>q.kind==='restore'))return;const need=others(me);
+    s.req[newId('q')]={kind:'restore',by:me,need,min:need.length,votes:{},day,t:Date.now()};s.last=ev({k:'req',kind:'restore',by:me,need})});
+  toast('Diğer 3 oyuncu onaylayınca yedeğe dönülür');
 }
 function loadLocal(){try{return norm(JSON.parse(localStorage.getItem(KEY)))}catch(e){return fresh()}}
 let st=loadLocal();
@@ -603,36 +671,41 @@ function execute(s,q){
         s.last=ev(Object.assign({k:'champ',match:m,snatchFrom,prevCig},fin))}}}
   else if(q.kind==='undo'){const m=s.hist.pop();s.last=ev({k:'undo',match:m||null})}
   else if(q.kind==='reset'){s.hist=[];s.last=ev({k:'reset'})}
+  else if(q.kind==='restore'){const b=s._bk[q.day];if(b){BK_FIELDS.forEach(k=>{if(b[k]!==undefined&&b[k]!==null)s[k]=JSON.parse(JSON.stringify(b[k]))});s.live={};s.last=ev({k:'restore',day:q.day})}}
   else if(q.kind==='release'){delete s.devices[q.by];s.last=ev({k:'release',p:q.by})}
 }
 
 // ================= SENKRON =================
 let ref=null;
 function setStatus(t,ok){const e=$('sync');e.textContent=t;e.className='sync '+(ok?'ok':'off')}
+let OUTDATED=false;
 function change(fn){
-  if(ref){ref.transaction(cur=>{const s=norm(cur);fn(s);return s},err=>{if(err)setStatus('⚠️ Kaydedilemedi',false)})}
-  else{const prev=st;const s=norm(JSON.parse(JSON.stringify(st)));fn(s);apply(s,prev);try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
+  if(OUTDATED){showOutdated();return}
+  const wrap=cur=>{if(cur&&(cur.minVer||0)>APP_VER){OUTDATED=true;setTimeout(showOutdated,0);return undefined}
+    const before=norm(cur),s=norm(cur);fn(s);backupInto(s,before);s.minVer=Math.max(s.minVer||0,APP_VER);return s};
+  if(ref){ref.transaction(cur=>wrap(cur),err=>{if(err)setStatus('⚠️ Kaydedilemedi',false)})}
+  else{const prev=st;const s=wrap(JSON.parse(JSON.stringify(st)));if(!s)return;apply(s,prev);try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
 }
+function showOutdated(){const b=document.getElementById('upd');if(b)b.classList.remove('hidden')}
 function apply(s,prev){
   st=s;
   P.forEach(p=>{const a=A[p.id],q=s.pos[p.id];
     if(!prev){a.x=a.tx=q.x;a.y=a.ty=q.y}
     else{const o=prev.pos[p.id];if(o.x!==q.x||o.y!==q.y){a.tx=q.x;a.ty=q.y}}});
   if(prev&&prev.cig!==s.cig){const L=s.last,fresh_=L&&(!prev.last||prev.last.t!==L.t);if(!(fresh_&&(L.k==='res'||L.k==='champ')&&L.snatchFrom))startPass(prev.cig,s.cig)}
-  if(!prev)setTimeout(()=>{if(!myClaim()&&legacyMe&&!st.devices[legacyMe])claim(legacyMe,true)},900);
   if(s.last&&prev&&(!prev.last||prev.last.t!==s.last.t))showEvent(s.last);
   render();
 }
 let seenFirst=false;
 function startSync(){
-  if(!FIREBASE_CONFIG||!window.firebase){setStatus('📱 Sadece bu telefon',false);return}
+  if(!FIREBASE_CONFIG||!window.firebase){setStatus('📱 Sadece bu telefon',false);synced=true;render();return}
   try{
     firebase.initializeApp(FIREBASE_CONFIG);
     const db=firebase.database();ref=db.ref('odaLigi');
     setStatus('⏳ Bağlanıyor…',false);
     db.ref('.info/connected').on('value',v=>setStatus(v.val()?'🟢 Ortak tablo':'🔴 Bağlantı yok',!!v.val()));
-    ref.on('value',snap=>{const s=norm(snap.val());apply(s,seenFirst?st:null);seenFirst=true;try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}});
-  }catch(e){ref=null;setStatus('📱 Sadece bu telefon',false)}
+    ref.on('value',snap=>{const s=norm(snap.val());synced=true;if((s.minVer||0)>APP_VER){OUTDATED=true;showOutdated()}apply(s,seenFirst?st:null);seenFirst=true;try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}});
+  }catch(e){ref=null;setStatus('📱 Sadece bu telefon',false);synced=true;render()}
 }
 
 // ================= SAHNE: AKTÖRLER =================
@@ -689,7 +762,7 @@ function say(id,text,dur=2800){
   const t=el('text',{x:0,y:-17,'text-anchor':'middle','font-family':'Arial','font-size':22,'font-weight':700,fill:'#222'},g);t.textContent=text;
   let w=text.length*11.5;try{w=t.getComputedTextLength()}catch(e){}
   r.setAttribute('x',-w/2-14);r.setAttribute('width',w+28);
-  a.bubble={g,w:w+28,end:performance.now()+dur};speak(id,text);
+  a.bubble={g,w:w+28,end:performance.now()+dur};if(!SAYQ)speak(id,text);
 }
 function setMood(id,m,dur){const a=A[id];a.mood=m;a.moodStart=performance.now();a.moodEnd=a.moodStart+dur;
   if(m==='loss'&&!a.cloud){const c=el('g',{},fx);
@@ -749,7 +822,7 @@ function showEvent(e){
     sideIds(e.type,e.a).concat(sideIds(e.type,e.b)).forEach((id,i)=>setTimeout(()=>say(id,rnd(['Hadi bakalım!','Kumandayı ver!','Hazırım!','Sana acımam!','Isınma turu yok!']),1800),i*300));return}
   if(e.k==='cancel'){toast(`Maç iptal edildi: ${shortOf(e.type,e.a)} vs ${shortOf(e.type,e.b)}`);return}
   if(e.k==='req'){
-    const what=e.kind==='match'&&e.match?matchStr(e.match):e.kind==='undo'?'son maçı geri al':e.kind==='release'?'telefon kilidini aç':'ligi sıfırla';
+    const what=e.kind==='match'&&e.match?matchStr(e.match):e.kind==='undo'?'son maçı geri al':e.kind==='release'?'telefon kilidini aç':e.kind==='restore'?'yedeğe dön':'ligi sıfırla';
     if(me&&(e.need||[]).includes(me)){toast(`⏳ ${ad(e.by)} onayını istiyor: ${what}`);beep(880,.08,'triangle');setTimeout(()=>beep(1175,.12,'triangle'),100);try{navigator.vibrate&&navigator.vibrate(80)}catch(x){}}
     say(e.by,'Onaylayın!',2000);return}
   if(e.k==='rej'){toast(`❌ ${ad(e.who)} reddetti, ${ad(e.by)} tekrar girsin`);beep(200,.3,'sawtooth',.08);say(e.who,'Kabul etmiyorum!',2200);return}
@@ -757,7 +830,8 @@ function showEvent(e){
   if(e.k==='champ'){const d=matchFx(e.match,e);setTimeout(()=>champion(e),d);return}
   if(e.k==='undo'){beep(300,.08);toast('↩︎ Son maç geri alındı'+(e.match?': '+matchStr(e.match):''));return}
   if(e.k==='reset'){toast('🔄 Lig sıfırlandı');return}
-  if(e.k==='claim'){say(e.p,'Bu telefon benim! 🔒',1800);SFX.ding();return}
+  if(e.k==='restore'){toast(`🗄️ ${e.day} yedeğine dönüldü`);SFX.ding();return}
+  if(e.k==='claim'){say(e.p,'Ben geldim! 🔒',1800);SFX.ding();return}
   if(e.k==='release'){toast(`🔓 ${ad(e.p)} telefon kilidi açıldı`);return}
   if(e.k==='puff'){puffFx(e.p);return}
   if(e.k==='pass'){SFX.lighter();return}
@@ -805,33 +879,74 @@ svg.addEventListener('pointerdown',e=>{
 });
 function hintPick(){const r=$('mePick');r.classList.remove('flash');void r.offsetWidth;r.classList.add('flash')}
 
-// ================= KİM OLDUĞUNU SEÇ (telefon kilidi) =================
-const DEVKEY='odaLigi_dev';let DEV=null;try{DEV=localStorage.getItem(DEVKEY)}catch(e){}
-if(!DEV){DEV='d'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);try{localStorage.setItem(DEVKEY,DEV)}catch(e){}}
-const legacyMe=me;me=null;
-function myClaim(s=st){return Object.keys(s.devices||{}).find(k=>s.devices[k]===DEV)||null}
-function claim(pid,silent){
-  const owner=st.devices[pid],mine=myClaim();
-  if(owner&&owner!==DEV){if(!silent){toast(`🔒 ${ad(pid)} başka bir telefona kayıtlı`);SFX.thud()}return}
-  if(mine){if(mine!==pid&&!silent)toast(`🔒 Bu telefon ${ad(mine)} için kilitli`);return}
-  change(s=>{if(s.devices[pid]&&s.devices[pid]!==DEV)return;if(Object.values(s.devices).includes(DEV))return;s.devices[pid]=DEV;s.last=ev({k:'claim',p:pid})});
+// ================= KİMLİK (bir kez seç, PIN ile kalıcı) =================
+const DEVKEY='odaLigi_dev',WHOKEY='odaLigi_who';
+function getCookie(k){const m=document.cookie.match(new RegExp('(?:^|; )'+k+'=([^;]*)'));return m?decodeURIComponent(m[1]):null}
+function setCookie(k,v){try{document.cookie=`${k}=${encodeURIComponent(v)}; max-age=${60*60*24*3650}; path=/; SameSite=Lax`}catch(e){}}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+let DEV=lsGet(DEVKEY)||getCookie(DEVKEY);
+if(!DEV)DEV='d'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+lsSet(DEVKEY,DEV);setCookie(DEVKEY,DEV);
+// bu telefonda daha önce bağlanılan oyuncu (yedek: yerel + çerez)
+let WHO=null;try{WHO=JSON.parse(lsGet(WHOKEY)||getCookie(WHOKEY)||'null')}catch(e){}
+function saveWho(pid,h){WHO={p:pid,h};const v=JSON.stringify(WHO);lsSet(WHOKEY,v);setCookie(WHOKEY,v)}
+me=null;
+function pinHash(pid,pin){let h=0x811c9dc5;const s='odaligi:'+pid+':'+pin;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h.toString(16)}
+function myClaim(s=st){return Object.keys(s.players).find(k=>s.players[k].d&&s.players[k].d[DEV])||null}
+// otomatik yeniden bağlanma: bu telefon daha önce bağlandıysa (cihaz kimliği silinmiş olsa bile)
+let relinking=false;
+function autoRelink(){
+  if(myClaim()||!WHO||relinking||!synced)return;
+  const pl=st.players[WHO.p];
+  if(pl&&pl.h&&pl.h===WHO.h){relinking=true;change(s=>{const q=s.players[WHO.p];if(q&&q.h===WHO.h){q.d=q.d||{};q.d[DEV]=1}});setTimeout(()=>relinking=false,3000)}
 }
-function requestRelease(){if(!me)return;
-  change(s=>{if(Object.values(s.req).some(q=>q.kind==='release'&&q.by===me))return;const need=others(me);
-    s.req[newId('q')]={kind:'release',by:me,need,min:need.length,votes:{},t:Date.now()};s.last=ev({k:'req',kind:'release',by:me,need})});
-  toast('Diğer 3 oyuncu onaylayınca bu telefonun kilidi açılır');
+function linkWith(pid,pin){
+  const pl=st.players[pid],h=pinHash(pid,pin);
+  if(pl&&pl.h&&pl.h!==h)return false;
+  change(s=>{if(Object.keys(s.players).some(k=>s.players[k].d&&s.players[k].d[DEV]))return;
+    const q=s.players[pid]||{h:null,d:{}};if(q.h&&q.h!==h)return;q.h=h;q.d=q.d||{};q.d[DEV]=1;s.players[pid]=q;s.last=ev({k:'claim',p:pid})});
+  saveWho(pid,h);return true;
 }
+// ---- giriş ekranı ----
+let synced=false,welcomeSkipped=false,pinFor=null,pinBuf='',pinFirst=null;
 function renderMe(){
   me=myClaim();
-  $('meBtns').innerHTML=P.map(p=>{const own=st.devices[p.id],mine=own===DEV,taken=!!own&&!mine;
-    return `<button data-me="${p.id}" class="${mine?'on':''}${taken?' taken':''}" style="--c:${p.color}" ${(me&&!mine)||taken?'disabled':''}>${mine?'🔒 ':taken?'📱 ':''}${p.ad}</button>`}).join('')+
-    (me?`<button id="release" class="rel">Telefon değiştir</button>`:'');
+  if(me&&(!WHO||WHO.p!==me))saveWho(me,st.players[me].h);
+  $('meBtns').innerHTML=me?`<span class="melock" style="--c:${P.find(p=>p.id===me).color}">🔒 ${ad(me)}</span>`:`<button id="openWelcome" class="pick">👤 Giriş yap</button>`;
   P.forEach(p=>A[p.id].ring.setAttribute('opacity',me===p.id?1:0));
-  $('meHint').textContent=me?`Bu telefon ${ad(me)} için kilitli. Yere dokun, ${ad(me)} yürüsün.`:'Adına bir kez dokun: bu telefon sana kilitlenir, başkası seni seçemez.';
+  $('meHint').textContent=me?`Bu telefon ${ad(me)} olarak kalıcı bağlı. Yere dokun, ${ad(me)} yürüsün.`:'İzleme modundasın. Oynamak için giriş yap.';
+  if(!me&&synced&&!welcomeSkipped&&!WHO_PENDING()){drawWelcome();$('welcome').classList.remove('hidden')}
+  if(me)$('welcome').classList.add('hidden');
+  autoRelink();
 }
-$('meBtns').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-  if(b.id==='release'){requestRelease();return}
-  if(b.dataset.me)claim(b.dataset.me)});
+const WHO_PENDING=()=>WHO&&st.players[WHO.p]&&st.players[WHO.p].h===WHO.h;
+function drawWelcome(){
+  $('wCards').innerHTML=P.map(p=>{const pl=st.players[p.id],has=pl&&pl.h;
+    return `<button data-w="${p.id}" style="--c:${p.color}"><img src="${CH_IMG[p.id]}" alt=""><b>${p.ad}</b><small>${has?'🔑 PIN ile gir':'✨ İlk giriş'}</small></button>`}).join('');
+}
+function openPin(pid){pinFor=pid;pinBuf='';pinFirst=null;drawPin();$('pinBox').classList.remove('hidden')}
+function drawPin(){
+  const pl=st.players[pinFor],has=pl&&pl.h;
+  $('pinTitle').textContent=has?`${ad(pinFor)} – PIN'ini gir`:(pinFirst?`PIN'i tekrar gir`:`${ad(pinFor)} için 4 haneli PIN belirle`);
+  $('pinNote').textContent=has?'Başka telefondan veya bilgiler silindiyse bu PIN ile tekrar bağlanırsın.':'Bu PIN sadece sende kalsın. Telefon değişirse bununla girersin.';
+  $('pinDots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<pinBuf.length?'on':''}"></i>`).join('');
+}
+function pinErr(msg){$('pinNote').textContent=msg;$('pinBox').querySelector('.dlg').classList.remove('err');void $('pinBox').offsetWidth;$('pinBox').querySelector('.dlg').classList.add('err');SFX.thud();pinBuf='';setTimeout(drawPin,1400);$('pinDots').innerHTML=[0,1,2,3].map(()=>'<i></i>').join('')}
+function pinDone(){
+  const pl=st.players[pinFor],has=pl&&pl.h;
+  if(!has&&!pinFirst){pinFirst=pinBuf;pinBuf='';drawPin();return}
+  if(!has&&pinFirst!==pinBuf){pinFirst=null;pinErr('PIN\'ler aynı değil, baştan belirle.');return}
+  if(!linkWith(pinFor,pinBuf)){pinErr('PIN yanlış. Tekrar dene.');return}
+  SFX.ding();$('pinBox').classList.add('hidden');$('welcome').classList.add('hidden');
+}
+$('wCards').addEventListener('click',e=>{const b=e.target.closest('button[data-w]');if(b)openPin(b.dataset.w)});
+$('wSkip').onclick=()=>{welcomeSkipped=true;$('welcome').classList.add('hidden')};
+$('meBtns').addEventListener('click',e=>{if(e.target.closest('#openWelcome')){drawWelcome();$('welcome').classList.remove('hidden')}});
+$('pinPad').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.n!==undefined){if(pinBuf.length<4){pinBuf+=b.dataset.n;drawPin();if(pinBuf.length===4)setTimeout(pinDone,150)}}
+  else if(b.dataset.x==='del'){pinBuf=pinBuf.slice(0,-1);drawPin()}
+  else if(b.dataset.x==='cancel'){$('pinBox').classList.add('hidden')}});
 
 // ================= TABLOLAR ve MAÇLAR =================
 let leader=null,tab='team';
@@ -904,7 +1019,7 @@ function renderReqs(){
   const list=Object.entries(st.req).filter(([k,q])=>q.kind!=='match').sort((a,b)=>a[1].t-b[1].t),box=$('reqs');
   box.classList.toggle('hidden',!list.length);
   $('reqList').innerHTML=list.map(([id,q])=>{
-    const what=q.kind==='undo'?`Son maçı geri al${q.match?': '+matchStr(q.match):''}`:q.kind==='release'?'Telefon kilidini aç (başka telefona geçecek)':'Ligi sıfırla (yıldız ve ayakkabılar kalır)';
+    const what=q.kind==='undo'?`Son maçı geri al${q.match?': '+matchStr(q.match):''}`:q.kind==='release'?'Telefon kilidini aç (başka telefona geçecek)':q.kind==='restore'?`Yedeğe dön: ${q.day} (o günkü tablolar geri gelir)`:'Ligi sıfırla (yıldız ve ayakkabılar kalır)';
     const vs=q.need.map(v=>`<span class="v">${q.votes[v]===true?'✅':'⏳'} ${ad(v)}</span>`).join('');
     const canVote=me&&q.need.includes(me)&&q.votes[me]===undefined;
     return `<div class="req"><div class="rt"><b>${ad(q.by)}</b> · ${what}</div><div class="vs">${vs} <small>${q.min>1?'(hepsi onaylamalı)':'(biri yeterli)'}</small></div>
@@ -960,6 +1075,14 @@ $('smGo').onclick=()=>{
 };
 
 $('undo').onclick=requestUndo;
+function openBackups(){
+  const days=Object.keys(st._bk||{}).sort().reverse();
+  $('bkList').innerHTML=days.length?days.map(d=>{const b=st._bk[d];const n=(b.hist||[]).length;return `<div class="bk"><div><b>${d}</b><small>${n} maç · ${b.season||1}. sezon · ⭐ ${(b.stars||{}).pati||0}-${(b.stars||{}).behrem||0}</small></div><button data-day="${d}">Bu güne dön</button></div>`}).join('')
+    :'<p class="note">Henüz yedek yok. İlk maç girildiği gün otomatik yedek alınır.</p>';
+  $('bkm').classList.remove('hidden');
+}
+$('backups').onclick=openBackups;
+$('bkm').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.day){requestRestore(b.dataset.day);$('bkm').classList.add('hidden')}else if(b.classList.contains('cancel'))$('bkm').classList.add('hidden')});
 $('reset').onclick=()=>$('confirm').classList.remove('hidden');
 $('no').onclick=()=>$('confirm').classList.add('hidden');
 $('yes').onclick=()=>{requestReset();$('confirm').classList.add('hidden')};
@@ -1236,7 +1359,7 @@ function frame(now){
 }
 
 // boşta laf atma (sadece bu telefonda)
-setInterval(()=>{if(document.hidden)return;if(Math.random()<.5){const p=rnd(P);if(!A[p.id].bubble)say(p.id,rnd(p.lines),2600)}},9000);
+setInterval(()=>{if(document.hidden)return;if(Math.random()<.5){const p=rnd(P);if(!A[p.id].bubble){SAYQ=true;say(p.id,rnd(p.lines),2600);SAYQ=false}}},9000);
 
 // ---------- TV'de maç videosu ----------
 const tv=$('tvg'), TX=404, TY=360, TW=372, TH=218;
@@ -1314,7 +1437,7 @@ function goal(){celebrate=80;banner.setAttribute('opacity',1);ballC.setAttribute
 (function loop(){tvStep();requestAnimationFrame(loop)})();
 
 
-apply(st,null);requestAnimationFrame(frame);startSync();setMute(MUTED);$('mute').onclick=()=>{setMute(!MUTED);if(!MUTED){ac_();SFX.ding();speak('spiker','Ses açık!',{prio:true})}};
+apply(st,null);requestAnimationFrame(frame);startSync();$('updBtn').onclick=()=>{try{navigator.serviceWorker&&navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.update()))}catch(e){};setTimeout(()=>location.reload(),600)};setSoundMode(soundMode());$('mute').onclick=()=>{const k=(soundMode()+1)%3;setSoundMode(k);ac_();if(k===0){SFX.ding();speak('spiker','Ses açık!',{prio:true})}else if(k===1){SFX.ding();toast('🎵 Konuşmalar kapalı, efektler açık')}else toast('🔇 Tüm sesler kapalı')};
 if('serviceWorker' in navigator && location.protocol==='https:' && !/claude|anthropic/.test(location.host)){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 
 </script>
