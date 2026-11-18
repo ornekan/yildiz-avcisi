@@ -64,6 +64,15 @@ tbody tr:first-child td{background:#ffd84d10}
 #confirm button{flex:1;padding:12px;border-radius:10px;border:none;font-weight:800;font-size:15px}
 #yes{background:#c0392b;color:#fff}#no{background:#3a3f52;color:#fff}
 .hidden{display:none!important}
+.vprow{margin-top:10px}.vprow button{width:100%;padding:11px;border-radius:10px;border:1px solid #5ef3ff55;background:#5ef3ff12;color:#9ff;font-weight:800;font-size:14px}
+.vpsteps{font-size:13px;opacity:.85;padding-left:20px;margin:6px 0 10px;line-height:1.6}
+#vpKey{width:100%;padding:12px;border-radius:10px;border:1px solid #ffffff33;background:#11131a;color:#fff;font-size:15px}
+.vpbtn{width:100%;margin-top:10px;padding:12px;border-radius:10px;border:none;background:#3a3f52;color:#fff;font-weight:800;font-size:15px}
+.vpbtn.go{background:#2e9e5b}.vpbtn:disabled{opacity:.4}
+.vpr{display:grid;grid-template-columns:90px 1fr 44px;gap:8px;align-items:center;margin-top:8px;font-size:14px;font-weight:700}
+.vpr select{padding:10px;border-radius:9px;background:#232737;color:#fff;border:1px solid #ffffff22;font-size:14px}
+.vpr button{height:40px;border-radius:9px;border:none;background:#3a3f52;color:#fff;font-size:16px}
+#vpProg{min-height:18px;color:#ffd84d;opacity:1}
 .tools button{font-size:13px;padding:11px 4px}
 #upd{position:fixed;inset:0;z-index:60;background:#000c;display:flex;align-items:center;justify-content:center;padding:20px}
 #upd .dlg{background:#1b1e29;border:2px solid #ffd84d;border-radius:18px;padding:20px;max-width:320px;text-align:center}
@@ -426,11 +435,23 @@ tbody tr:first-child td{background:#ffd84d10}
     <div id="tabs"><button data-tab="team">🛡️ Takım Ligi</button><button data-tab="ind">👤 Bireysel</button><button data-tab="gol">⚽ Gol Krallığı</button></div>
     <div id="tableBox"></div>
     <div class="tools"><button id="undo">↩︎ Son Maçı Geri Al</button><button id="backups">🗄️ Yedekler</button><button id="reset">Ligi Sıfırla</button></div>
+    <div class="vprow"><button id="openVP">🎙️ Erkek Ses Paketi</button></div>
     <div class="seasonrow"><span id="season"></span><span>Takım ligi: 31 puan = ⭐ · Gol kralı = 👟</span></div>
   </div>
   <div class="tips">İpuçları: Karakterlere dokun, konuşsunlar · Dart tahtasına dokun, ok at · Kediyi sev 🐈 · Sesler için telefonun sessiz modda olmasın 🔊</div>
 </div>
 <div id="toast"></div>
+<div id="vpm" class="modal hidden"><div class="dlg">
+  <h3>🎙️ Erkek Ses Paketi</h3>
+  <p class="note" id="vpState"></p>
+  <ol class="vpsteps"><li><b>elevenlabs.io</b>'da ücretsiz hesap aç.</li><li>Sol altta profil → <b>API Keys</b> → <b>Create API Key</b> → kopyala.</li><li>Aşağıya yapıştır ve <b>Sesleri Getir</b>'e bas.</li></ol>
+  <input id="vpKey" type="password" placeholder="ElevenLabs API anahtarı (sk_...)" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <button id="vpLoad" class="vpbtn">Sesleri Getir</button>
+  <div id="vpStep2" class="hidden"><div id="vpRoles"></div><p class="note" id="vpCount"></p><button id="vpGo" class="vpbtn go">🎙️ Ses Paketini Oluştur</button></div>
+  <p class="note" id="vpProg"></p>
+  <p class="note">Anahtar sadece bu ekranda kullanılır, hiçbir yere kaydedilmez. Kayıtlar bir kez üretilir ve 4 telefon da aynı sesleri çalar.</p>
+  <div class="row"><button class="cancel">Kapat</button></div>
+</div></div>
 <div id="upd" class="hidden"><div class="dlg"><b>🔄 Yeni sürüm var</b><p>Verilerin güvende. Bu telefondaki uygulama eski; güncellemeden puan girilemez.</p><button id="updBtn">Şimdi Güncelle</button></div></div>
 <div id="bkm" class="modal hidden"><div class="dlg"><h3>🗄️ Otomatik Yedekler</h3><p class="note">Her gün ilk maç girilirken otomatik yedek alınır (son 14 gün). Geri dönmek için diğer 3 oyuncunun onayı gerekir. Yıldızlar, ayakkabılar ve PIN'ler korunur.</p><div id="bkList"></div><div class="row"><button class="cancel">Kapat</button></div></div></div>
 <div id="welcome" class="hidden"><div class="wbox">
@@ -546,6 +567,27 @@ function setSoundMode(k){MUTED=k===2;NOVOICE=k===1;try{localStorage.setItem('oda
   const b=document.getElementById('mute');if(b)b.textContent=['🔊','🎵','🔇'][k];if(k){try{speechSynthesis.cancel()}catch(e){}}}
 function setMute(m){setSoundMode(m?2:soundMode())}
 
+// ================= REPLİKLER (seslendirme paketi bu listeden üretilir) =================
+const L_START=['Hadi bakalım!','Kumandayı ver!','Hazırım!','Sana acımam!','Isınma turu yok!'];
+const L_SNATCH_W=['HAHAHA! Sigara artık bizde!','Hahaha, ver bakalım şunu!','Kaybedene sigara yok, hahaha!'];
+const L_SNATCH_L=['Hey! Sigaram!','Bari son fırtı çekseydim...','Bu haksızlık!'];
+const L_PUFF=['Ohh, mis gibi.','Galibiyet sigarası bir başka!','Kazananın fırtı tatlı olur.','Bu duman şampiyonluk kokuyor.'];
+const L_CERPUFF=['Bir fırt alayım, hak ettim!','Bu sigara gol kralının!','Dumanı bile altın!'];
+const L_PROF={anil:'Hesap tamam, kasa doldu!',hakan:'Kaşe basıldı, onaylandı!',yakup:'Taksimetre açık, kısa yoldan gol!',soner:'Bu fiyata galibiyet, kaçmaz!'};
+const L_MISC=['Onaylayın!','Kabul etmiyorum!','Ben geldim!','ŞAMPİYON!','Bu gece benim gecem!','Altın ayakkabı benim!','Siiiuuuu!','Ha ha ha ha ha!'];
+const SPK={goal:'Gooool!',draw:'Maç berabere bitti, puanlar paylaşıldı!',end:'Maç bitti!',won:'kazandı!',streak:'seriye bağladı!',start:'Maç başlıyor!',
+  champ:'Şampiyon!',champ2:'Sezonun şampiyonu!',bootT:'Takım gol krallığında altın ayakkabının sahibi...',bootI:'Bireysel gol krallığında altın ayakkabının sahibi...',congrats:'Tebrikler!',on:'Ses açık!'};
+const SPK_NAMES={anil:'Anıl!',hakan:'Hakan!',yakup:'Yakup!',soner:'Soner!',pati:'PATİ JK!',behrem:'BEHREM FC!'};
+const SPK_VS={anil:'Anıl karşısında!',hakan:'Hakan karşısında!',yakup:'Yakup karşısında!',soner:'Soner karşısında!',pati:'PATİ JK karşısında!',behrem:'BEHREM FC karşısında!'};
+function voiceInventory(){
+  const out=[],seen=new Set(),add=(who,text)=>{const t=cleanSpeech(text);if(!t)return;const k=who+'|'+t;if(seen.has(k))return;seen.add(k);out.push({who,text:t})};
+  P.forEach(p=>[...p.lines,...p.win,...p.loss,...DRAW_LINES,...THANKS,...L_START,...L_SNATCH_W,...L_SNATCH_L,...L_PUFF,...L_CERPUFF,...L_MISC,L_PROF[p.id]].forEach(t=>add(p.id,t)));
+  [...Object.values(SPK),...Object.values(SPK_NAMES),...Object.values(SPK_VS)].forEach(t=>add('spiker',t));
+  return out;
+}
+function cleanSpeech(t){return String(t).replace(/[\u{1F000}-\u{1FAFF}☀-➿️]/gu,'').trim()}
+function clipKey(who,text){let h=0x811c9dc5;const s=who+'|'+cleanSpeech(text);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return who+'_'+h.toString(36)}
+
 
 // zemin sınırları ve derinlik ölçeği
 const FY0=800, FY1=960;
@@ -554,7 +596,7 @@ function clampFloor(x,y){y=Math.max(FY0,Math.min(FY1,y));x=Math.max(50,Math.min(
 const scaleAt=y=>0.7+0.3*(y-760)/205;
 
 // ================= DURUM =================
-const APP_VER=9;
+const APP_VER=10;
 function fresh(){return {hist:[],cig:'yakup',cigOwners:P.map(p=>p.id),puffs:0,devices:{},players:{},tur:0,last:null,live:{},req:{},stars:{pati:0,behrem:0},boots:{},tboots:{},awards:null,season:1,
   pos:Object.fromEntries(P.map(p=>[p.id,{x:p.home[0],y:p.home[1]}]))}}
 const toArr=v=>Array.isArray(v)?v:(v?Object.values(v):[]);
@@ -800,26 +842,26 @@ function matchFx(m,e){
   const W=res==='a'?SA:res==='b'?SB:[],L=res==='a'?SB:res==='b'?SA:[];
   SFX.whistle();toast('🏁 '+matchStr(m));
   const t1=400+goalShow(m);
-  if(res==='d'){setTimeout(()=>{speak('spiker','Maç berabere bitti, puanlar paylaşıldı!',{prio:true});tone(440,.3,'triangle',.08);tone(440,.3,'triangle',.08,.35);
+  if(res==='d'){setTimeout(()=>{speakSeq('spiker',[SPK.draw],{prio:true});tone(440,.3,'triangle',.08);tone(440,.3,'triangle',.08,.35);
     SA.concat(SB).forEach((id,i)=>{const [hx,hy,s]=headOf(id);popup(hx,hy-10*s,'+1','#9ad0ff');setMood(id,'draw',1500);if(i===0)say(id,rnd(DRAW_LINES))})},t1);return t1+2000}
   setTimeout(()=>{
-    speak('spiker',`Maç bitti! ${W.map(ad).join(' ve ')} kazandı!`,{prio:true});fanfare();SFX.crowd(2.5,.16);
+    speakSeq('spiker',[SPK.end,m.type==='team'?SPK_NAMES[res==='a'?m.a:m.b]:SPK_NAMES[W[0]],SPK.won],{prio:true});fanfare();SFX.crowd(2.5,.16);
     W.forEach((id,i)=>{const [hx,hy,s]=headOf(id);popup(hx,hy-10*s,'+3','#ffd84d');setMood(id,'win',2600);setTimeout(()=>confetti(hx,hy),i*200);
       setTimeout(()=>profFx(id),900+i*1300);setTimeout(()=>moveFx(id,rnd(['slide','spin','siuu'])),1500+i*1100);
       setTimeout(()=>say(id,rnd(P.find(p=>p.id===id).win)),2300+i*700);
-      const n=streak(id);if(m.type==='ind'&&n>=2)setTimeout(()=>{popup(hx,hy-70*s,'🔥 '+n+' seri!','#ff9a3d',40);speak('spiker',`${ad(id)} seriye bağladı, ${n} maçtır kazanıyor!`)},3200)});
+      const n=streak(id);if(m.type==='ind'&&n>=2)setTimeout(()=>{popup(hx,hy-70*s,'🔥 '+n+' seri!','#ff9a3d',40);speakSeq('spiker',[SPK_NAMES[id],SPK.streak])},3200)});
     L.forEach((id,i)=>{const [hx,hy,s]=headOf(id);popup(hx,hy-10*s,'0','#ff8a8a');
       setTimeout(()=>{setMood(id,'loss',3600);controllerThrow(id);if(i===0)SFX.sad();say(id,rnd(P.find(p=>p.id===id).loss))},1100+i*500)});
   },t1);
   const at=t1+4200;
   if(e&&e.snatchFrom&&W.length){scheduleSnatch(e.prevCig||e.snatchFrom,e.snatchFrom,W[0],at);
-    setTimeout(()=>{SFX.laugh();W.forEach((id,i)=>setTimeout(()=>{setMood(id,'laugh',2000);say(id,rnd(['HAHAHA! Sigara artık bizde!','Hahaha, ver bakalım şunu!','Kaybedene sigara yok, hahaha!']),2400);speak(id,'Ha ha ha ha ha!',{force:true})},i*450));
-      setTimeout(()=>say(e.snatchFrom,rnd(['Hey! Sigaram!','Bari son fırtı çekseydim...','Bu haksızlık!']),2200),1000)},at+700)}
+    setTimeout(()=>{SFX.laugh();W.forEach((id,i)=>setTimeout(()=>{setMood(id,'laugh',2000);say(id,rnd(L_SNATCH_W),2400);speak(id,'Ha ha ha ha ha!',{force:true})},i*450));
+      setTimeout(()=>say(e.snatchFrom,rnd(L_SNATCH_L),2200),1000)},at+700)}
   return at+2600;
 }
 function showEvent(e){
-  if(e.k==='start'){toast(`🎮 Maç başladı: ${nameOf(e.type,e.a)} vs ${nameOf(e.type,e.b)}`);SFX.whistle();speak('spiker',`Maç başlıyor! ${nameOf(e.type,e.a)}, ${nameOf(e.type,e.b)} karşısında!`,{prio:true});
-    sideIds(e.type,e.a).concat(sideIds(e.type,e.b)).forEach((id,i)=>setTimeout(()=>say(id,rnd(['Hadi bakalım!','Kumandayı ver!','Hazırım!','Sana acımam!','Isınma turu yok!']),1800),i*300));return}
+  if(e.k==='start'){toast(`🎮 Maç başladı: ${nameOf(e.type,e.a)} vs ${nameOf(e.type,e.b)}`);SFX.whistle();speakSeq('spiker',[SPK.start,SPK_NAMES[e.a],SPK_VS[e.b]],{prio:true});
+    sideIds(e.type,e.a).concat(sideIds(e.type,e.b)).forEach((id,i)=>setTimeout(()=>say(id,rnd(L_START),1800),i*300));return}
   if(e.k==='cancel'){toast(`Maç iptal edildi: ${shortOf(e.type,e.a)} vs ${shortOf(e.type,e.b)}`);return}
   if(e.k==='req'){
     const what=e.kind==='match'&&e.match?matchStr(e.match):e.kind==='undo'?'son maçı geri al':e.kind==='release'?'telefon kilidini aç':e.kind==='restore'?'yedeğe dön':'ligi sıfırla';
@@ -845,7 +887,7 @@ function champion(e){
   const kl=(ids,g,lbl)=>(ids||[]).length?`<div class="boot">👟 ${lbl}: <b>${ids.map(ad).join(' & ')}</b> (${g} gol)</div>`:'';
   b.querySelector('.cf').innerHTML=(e.tt||[]).map(r=>`${TEAMS[r.k].kisa} ${r.p} P`).join(' · ')+kl(e.kt,e.gt,'Takım Altın Ayakkabı')+kl(e.ki,e.gi,'Bireysel Altın Ayakkabı');
   b.style.setProperty('--c',T.renk);b.classList.remove('hidden');
-  speak('spiker',`Şampiyon ${T.ad}! ${e.season}. sezonun şampiyonu ${T.ad}!`,{prio:true});SFX.crowd(4,.22);fireworks(8);trophyFx(T.uyeler);
+  speakSeq('spiker',[SPK.champ,SPK_NAMES[e.team],SPK.champ2],{prio:true});SFX.crowd(4,.22);fireworks(8);trophyFx(T.uyeler);
   setTimeout(()=>{SFX.laugh();T.uyeler.forEach(id=>setMood(id,'laugh',2500))},2500);
   T.uyeler.forEach((id,i)=>{setMood(id,'win',4500);const [hx,hy]=headOf(id);setTimeout(()=>confetti(hx,hy),i*250);setTimeout(()=>say(id,'ŞAMPİYON!',3000),400+i*300)});
   [523,659,784,1046,784,1046,1318].forEach((f,i)=>setTimeout(()=>beep(f,.2,'triangle',.14),i*150));
@@ -1137,10 +1179,10 @@ function taxiFx(){const g=el('g',{},fx);
   (function f(now){const k=(now-t0)/2600;g.setAttribute('transform',`translate(${-250+k*2100},${990+Math.sin(k*60)*2}) scale(.85)`);if(k<1)requestAnimationFrame(f);else g.remove()})(t0);
 }
 function profFx(id){({
-  anil:()=>{SFX.cash();rainFx(['₺','₺','💰','KDV'],{n:28});bigText('HESAP TAMAM!',{y:290,size:80,col:'#7dff7a'});speak('anil','Hesap tamam, kasa doldu!',{force:true})},
-  hakan:()=>{stampFx();setTimeout(()=>speak('hakan','Kaşe basıldı, onaylandı!',{force:true}),300)},
-  yakup:()=>{taxiFx();bigText('KISA YOLDAN GOL!',{y:290,size:70,col:'#ffd400'});speak('yakup','Taksimetre açık, kısa yoldan gol!',{force:true})},
-  soner:()=>{SFX.ding();rainFx(['%50','%70','İNDİRİM','%90'],{n:24,col:'#ff5a5a',size:38});bigText('SÜPER FİYAT!',{y:290,size:80,col:'#ff5a5a'});speak('soner','Bu fiyata galibiyet, kaçmaz!',{force:true})}
+  anil:()=>{SFX.cash();rainFx(['₺','₺','💰','KDV'],{n:28});bigText('HESAP TAMAM!',{y:290,size:80,col:'#7dff7a'});speak('anil',L_PROF.anil,{force:true})},
+  hakan:()=>{stampFx();setTimeout(()=>speak('hakan',L_PROF.hakan,{force:true}),300)},
+  yakup:()=>{taxiFx();bigText('KISA YOLDAN GOL!',{y:290,size:70,col:'#ffd400'});speak('yakup',L_PROF.yakup,{force:true})},
+  soner:()=>{SFX.ding();rainFx(['%50','%70','İNDİRİM','%90'],{n:24,col:'#ff5a5a',size:38});bigText('SÜPER FİYAT!',{y:290,size:80,col:'#ff5a5a'});speak('soner',L_PROF.soner,{force:true})}
 })[id]()}
 function moveFx(id,kind){const a=A[id];a.anim={kind,t0:performance.now(),dur:kind==='slide'?1300:kind==='spin'?1200:1500,x0:a.x};
   if(kind==='siuu'){setTimeout(()=>speak(id,'Siiiuuuu!',{force:true}),600);setTimeout(()=>{SFX.thud();shake(250)},1200)}
@@ -1157,7 +1199,7 @@ function goalShow(m){
   const g=goalsOfMatch(m),sc=Object.entries(g).filter(([k,n])=>n>0).sort((a,b)=>b[1]-a[1]);
   if(!sc.length)return 0;
   SFX.horn();SFX.crowd(2.8,.2);tvFlash();bigText('GOOOL!',{y:520,size:170,dur:1800});
-  speak('spiker',`Gooool! ${sc.map(([k,n])=>ad(k)+(n>1?', '+n+' gol':'')).join(', ')}!`,{prio:true});
+  speakSeq('spiker',[SPK.goal,...sc.map(([k])=>SPK_NAMES[k])],{prio:true});
   sc.forEach(([k,n],i)=>setTimeout(()=>{const [hx,hy,s]=headOf(k);popup(hx,hy+60*s,'⚽'.repeat(Math.min(n,4))+(n>4?' ×'+n:''),'#fff',34)},300+i*200));
   return 1800;
 }
@@ -1175,7 +1217,7 @@ function trophyFx(ids){const x=ids.reduce((a,id)=>a+A[id].x,0)/ids.length,y=Math
 }
 function puffFx(id){SFX.lighter();setTimeout(SFX.inhale,200);
   setTimeout(()=>{SFX.exhale();const [x,y,s]=mouthOf(id);for(let i=0;i<6;i++)setTimeout(()=>cerSmoke(x+30*s,y+5*s,s*1.2,true),i*90)},900);
-  setTimeout(()=>say(id,rnd(['Ohh, mis gibi.','Galibiyet sigarası bir başka!','Kazananın fırtı tatlı olur.','Bu duman şampiyonluk kokuyor.']),2200),1300);
+  setTimeout(()=>say(id,rnd(L_PUFF),2200),1300);
 }
 // sigara kapma zamanlaması
 let cigOverride=null;
@@ -1249,7 +1291,7 @@ function cerTick(now){
   C.beam.setAttribute('opacity',(k*(t>1500?1:t/1500)).toFixed(2));
   C.pool.setAttribute('cx',a.x);C.pool.setAttribute('cy',a.y);C.pool.setAttribute('opacity',(k*(t>1500?1:t/1500)).toFixed(2));
   // davul (1500), ayakkabı iniyor (2500-3700)
-  if(C.stage===0&&t>1500){C.stage=1;SFX.drum(1100);speak('spiker',`${C.c.kind==='team'?'Takım':'Bireysel'} gol krallığında altın ayakkabının sahibi...`,{prio:true});say(a.p.id,'Bu gece benim gecem!',1800)}
+  if(C.stage===0&&t>1500){C.stage=1;SFX.drum(1100);speakSeq('spiker',[C.c.kind==='team'?SPK.bootT:SPK.bootI],{prio:true});say(a.p.id,'Bu gece benim gecem!',1800)}
   const bx=hx,byEnd=hy-120*hs;
   if(t>2500){
     const d=ease((t-2500)/1200),spin=t<3700?Math.cos((t-2500)/90):1;
@@ -1260,10 +1302,10 @@ function cerTick(now){
   if(C.stage===1&&t>3700){C.stage=2;
     fanfare();setTimeout(()=>[784,1046,1318,1568].forEach((f,i)=>setTimeout(()=>beep(f,.22,'triangle',.14),i*130)),500);
     setMood(a.p.id,'win',5200);confetti(hx,hy);setTimeout(()=>confetti(hx-120,hy+40),300);setTimeout(()=>confetti(hx+120,hy+40),600);
-    speak('spiker',`${ad(a.p.id)}! ${C.c.g} golle!`,{prio:true});SFX.crowd(3,.2);setTimeout(()=>say(a.p.id,'Altın ayakkabı benim! 👟',2200),1400);C.t2.setAttribute('opacity',1);
+    speakSeq('spiker',[SPK_NAMES[a.p.id],SPK.congrats],{prio:true});SFX.crowd(3,.2);setTimeout(()=>say(a.p.id,'Altın ayakkabı benim! 👟',2200),1400);C.t2.setAttribute('opacity',1);
     try{navigator.vibrate&&navigator.vibrate([80,50,80,50,160])}catch(e){}}
   if(C.stage===2&&t>4300&&!C.inh){C.inh=1;SFX.lighter();setTimeout(SFX.inhale,150);setTimeout(SFX.exhale,800)}
-  if(C.stage===2&&t>6200){C.stage=3;SFX.laugh();setMood(a.p.id,'laugh',1600);say(a.p.id,rnd(['Bir fırt alayım, hak ettim!','Bu sigara gol kralının!','Dumanı bile altın!']),2400)}
+  if(C.stage===2&&t>6200){C.stage=3;SFX.laugh();setMood(a.p.id,'laugh',1600);say(a.p.id,rnd(L_CERPUFF),2400)}
   if(C.stage===3&&t>8200){C.stage=4;confetti(hx,hy);SFX.exhale();SFX.crowd(1.5,.14)}
   // ışıltılar
   if(t>3700&&t<9000&&Math.random()<.35){const sx=bx+(Math.random()-.5)*160*hs,sy=byEnd+(Math.random()-.5)*110*hs;
@@ -1282,6 +1324,110 @@ function cerSmoke(x,y,s,big){
   const c=el('circle',{cx:x,cy:y,r:(big?12:6)*s,fill:'url(#smoke)'},smokeG);let k=0;const dx=(Math.random()-.2)*(big?2.2:.8),life=big?110:80;
   (function f(){k++;c.setAttribute('cy',y-k*(big?1.5:1.1));c.setAttribute('cx',x+k*dx+Math.sin(k/9)*5);c.setAttribute('r',((big?12:6)+k*(big?.5:.3))*s);c.setAttribute('opacity',Math.max(0,1-k/life));if(k<life)requestAnimationFrame(f);else c.remove()})();
 }
+
+// ================= ERKEK SES PAKETİ (ElevenLabs ile bir kez üretilir, Firebase'de durur) =================
+const VP={meta:null,clips:{},buf:{},ready:false,playing:[]};
+const VPKEY='odaLigi_vp';
+function vpLoadCache(){try{const c=JSON.parse(localStorage.getItem(VPKEY)||'null');if(c&&c.meta&&c.clips){VP.meta=c.meta;VP.clips=c.clips;VP.ready=true}}catch(e){}}
+function vpSaveCache(){try{localStorage.setItem(VPKEY,JSON.stringify({meta:VP.meta,clips:VP.clips}))}catch(e){}}
+vpLoadCache();
+function vpSync(){
+  if(!window.firebase||!ref)return;
+  try{firebase.database().ref('odaSes/meta').on('value',snap=>{const m=snap.val();
+    if(!m){return}
+    if(VP.meta&&VP.meta.v===m.v&&VP.ready)return;
+    if(typeof m!=='object'||!m.v)return;
+    try{firebase.database().ref('odaSes/clips').once('value').then(s2=>{const c=s2.val();if(!c||typeof c!=='object')return;VP.clips=c;VP.meta=m;VP.buf={};VP.ready=true;vpSaveCache();toast('🎙️ Erkek ses paketi yüklendi')}).catch(()=>{})}catch(e){}
+  },()=>{})}catch(e){}
+}
+function b64ToBuf(b64){const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer}
+async function vpBuffer(key){if(VP.buf[key])return VP.buf[key];const b64=VP.clips[key];if(!b64)return null;const c=ac_();if(!c)return null;
+  try{const ab=await c.decodeAudioData(b64ToBuf(b64));VP.buf[key]=ab;return ab}catch(e){return null}}
+function vpStopAll(){VP.playing.forEach(s=>{try{s.stop()}catch(e){}});VP.playing=[]}
+async function vpPlay(key){const c=ac_();const ab=await vpBuffer(key);if(!ab||!c||MUTED||NOVOICE)return 0;
+  const s=c.createBufferSource(),g=c.createGain();g.gain.value=1.15;s.buffer=ab;s.connect(g).connect(c.destination);s.start();VP.playing.push(s);
+  s.onended=()=>{VP.playing=VP.playing.filter(x=>x!==s)};return ab.duration*1000}
+let vpChain=0;
+async function vpSay(who,texts,{force=false,prio=false}={}){
+  if(MUTED||NOVOICE)return;
+  if(prio){vpStopAll();vpChain++}else if(!force&&VP.playing.length)return;
+  const my=++vpChain;
+  for(const t of texts){if(my!==vpChain&&!force)return;const ms=await vpPlay(clipKey(who,t));if(ms)await new Promise(r=>setTimeout(r,Math.max(0,ms-60)))}
+}
+// konuşma: paket varsa erkek ses kaydı, yoksa telefonun sesi
+const speakTTS=speak;
+speak=function(who,text,opts={}){if(VP.ready){vpSay(who,[text],opts);return}speakTTS(who,text,opts)};
+function speakSeq(who,texts,opts={}){if(VP.ready){vpSay(who,texts,opts);return}speakTTS(who,texts.join(' '),opts)}
+
+// ---- Ses paketi oluşturma ekranı ----
+const EL='https://api.elevenlabs.io/v1';
+let vpVoices=[],vpPick={};
+const ROLES=[['spiker','🎙️ Spiker'],['anil','Anıl'],['hakan','Hakan'],['yakup','Yakup'],['soner','Soner']];
+function openVP(){
+  $('vpKey').value='';$('vpStep2').classList.add('hidden');$('vpProg').textContent='';
+  $('vpState').innerHTML=VP.ready?`✅ Ses paketi yüklü: ${Object.keys(VP.clips).length} kayıt${VP.meta&&VP.meta.t?' · '+new Date(VP.meta.t).toLocaleDateString('tr-TR'):''}`:'Henüz ses paketi yok. Şu an telefonun kendi sesi kullanılıyor.';
+  $('vpm').classList.remove('hidden');
+}
+async function vpLoadVoices(){
+  const key=$('vpKey').value.trim();if(!key){$('vpProg').textContent='Önce API anahtarını yapıştır.';return}
+  $('vpProg').textContent='Sesler getiriliyor…';
+  try{const r=await fetch(EL+'/voices',{headers:{'xi-api-key':key}});if(!r.ok)throw new Error(r.status===401?'Anahtar geçersiz (401).':'Hata: '+r.status);
+    const j=await r.json();const all=j.voices||[];
+    const male=all.filter(v=>((v.labels||{}).gender||'').toLowerCase()==='male');
+    const tr=v=>/turk|türk|\btr\b/i.test(JSON.stringify(v.labels||{})+' '+v.name+' '+(v.description||''))?1:0;
+    vpVoices=(male.length?male:all).sort((a,b)=>tr(b)-tr(a));
+    if(!vpVoices.length)throw new Error('Hesapta ses bulunamadı.');
+    const pref=['Brian','Daniel','George','Bill','Chris','Eric','Liam','Will','Roger','Callum','Charlie'];
+    const pi=v=>{const i=pref.findIndex(n=>v.name.startsWith(n));return i<0?99:i};
+    const order=[...vpVoices].sort((a,b)=>(tr(b)-tr(a))||(pi(a)-pi(b)));
+    ROLES.forEach(([r],i)=>vpPick[r]=order[i%order.length].voice_id);
+    $('vpRoles').innerHTML=ROLES.map(([r,lbl])=>`<div class="vpr"><span>${lbl}</span><select data-role="${r}">${vpVoices.map(v=>`<option value="${v.voice_id}" ${vpPick[r]===v.voice_id?'selected':''}>${v.name}${tr(v)?' 🇹🇷':''}</option>`).join('')}</select><button data-test="${r}">▶</button></div>`).join('');
+    const n=voiceInventory(),chars=n.reduce((a,x)=>a+x.text.length,0);
+    $('vpCount').textContent=`${n.length} kayıt · yaklaşık ${chars} karakter (ücretsiz hesapta aylık 10.000 karakter var)`;
+    $('vpStep2').classList.remove('hidden');$('vpProg').textContent='Her rol için bir erkek ses seç, ▶ ile dinle.';
+  }catch(e){$('vpProg').textContent='❌ '+(e.message||'Bağlantı hatası')}
+}
+async function elTTS(key,voice,text){
+  const r=await fetch(`${EL}/text-to-speech/${voice}?output_format=mp3_22050_32`,{method:'POST',headers:{'xi-api-key':key,'Content-Type':'application/json',Accept:'audio/mpeg'},
+    body:JSON.stringify({text,model_id:'eleven_multilingual_v2',voice_settings:{stability:.4,similarity_boost:.8,style:.45,use_speaker_boost:true}})});
+  if(!r.ok){let m='Hata '+r.status;try{const j=await r.json();m+=': '+((j.detail&&j.detail.message)||j.detail||'')}catch(e){}throw new Error(m)}
+  const ab=await r.arrayBuffer();let bin='';const u=new Uint8Array(ab);for(let i=0;i<u.length;i+=8192)bin+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(bin);
+}
+async function vpTest(role){
+  const key=$('vpKey').value.trim();const sample=role==='spiker'?'Gooool! Maç başlıyor!':(P.find(p=>p.id===role).lines[0]);
+  $('vpProg').textContent='Deneme sesi üretiliyor…';
+  try{const b64=await elTTS(key,vpPick[role],sample);const c=ac_();const ab=await c.decodeAudioData(b64ToBuf(b64));const s=c.createBufferSource();s.buffer=ab;s.connect(c.destination);s.start();$('vpProg').textContent='▶ '+sample}
+  catch(e){$('vpProg').textContent='❌ '+e.message}
+}
+let vpBusy=false;
+async function vpGenerate(){
+  if(vpBusy)return;const key=$('vpKey').value.trim();if(!key)return;
+  if(!window.firebase||!ref){$('vpProg').textContent='❌ Ortak tabloya bağlı değil.';return}
+  vpBusy=true;$('vpGo').disabled=true;
+  const inv=voiceInventory(),clips={};let done=0,fail=0;
+  for(let i=0;i<inv.length;i+=3){
+    await Promise.all(inv.slice(i,i+3).map(async it=>{
+      for(let tr=0;tr<3;tr++){try{clips[clipKey(it.who,it.text)]=await elTTS(key,vpPick[it.who],it.text);done++;return}catch(e){if(tr===2){fail++;$('vpProg').textContent='⚠️ '+e.message}else await new Promise(r=>setTimeout(r,1500))}}
+    }));
+    $('vpProg').textContent=`🎙️ Kaydediliyor… ${done}/${inv.length}${fail?' · hata: '+fail:''}`;
+    if(fail>5)break;
+  }
+  if(!done){vpBusy=false;$('vpGo').disabled=false;return}
+  $('vpProg').textContent='☁️ Firebase\'e yükleniyor…';
+  try{
+    const db=firebase.database();
+    await db.ref('odaSes/clips').set(clips);
+    await db.ref('odaSes/meta').set({v:Date.now(),t:Date.now(),n:done,voices:vpPick,by:me||null,model:'eleven_multilingual_v2'});
+    VP.clips=clips;VP.meta={v:Date.now()};VP.buf={};VP.ready=true;vpSaveCache();
+    $('vpProg').textContent=`✅ Tamam! ${done} kayıt hazır${fail?', '+fail+' kayıt üretilemedi':''}. Tüm telefonlar artık erkek sesiyle konuşacak.`;
+    SFX.ding();setTimeout(()=>speakSeq('spiker',[SPK.on]),400);
+  }catch(e){$('vpProg').innerHTML='❌ Firebase yazma izni yok. Firebase → Realtime Database → Kurallar kısmına <b>odaSes</b> izni eklenmeli (talimat sohbette).'}
+  vpBusy=false;$('vpGo').disabled=false;
+}
+$('vpm').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.id==='vpLoad')vpLoadVoices();else if(b.id==='vpGo')vpGenerate();else if(b.dataset.test)vpTest(b.dataset.test);
+  else if(b.classList.contains('cancel'))$('vpm').classList.add('hidden')});
+$('vpm').addEventListener('change',e=>{const s=e.target.closest('select');if(s)vpPick[s.dataset.role]=s.value});
 
 // ================= ANA DÖNGÜ =================
 const crown=$('crown');
@@ -1437,7 +1583,7 @@ function goal(){celebrate=80;banner.setAttribute('opacity',1);ballC.setAttribute
 (function loop(){tvStep();requestAnimationFrame(loop)})();
 
 
-apply(st,null);requestAnimationFrame(frame);startSync();$('updBtn').onclick=()=>{try{navigator.serviceWorker&&navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.update()))}catch(e){};setTimeout(()=>location.reload(),600)};setSoundMode(soundMode());$('mute').onclick=()=>{const k=(soundMode()+1)%3;setSoundMode(k);ac_();if(k===0){SFX.ding();speak('spiker','Ses açık!',{prio:true})}else if(k===1){SFX.ding();toast('🎵 Konuşmalar kapalı, efektler açık')}else toast('🔇 Tüm sesler kapalı')};
+apply(st,null);requestAnimationFrame(frame);startSync();setTimeout(vpSync,1200);$('openVP').onclick=openVP;$('updBtn').onclick=()=>{try{navigator.serviceWorker&&navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.update()))}catch(e){};setTimeout(()=>location.reload(),600)};setSoundMode(soundMode());$('mute').onclick=()=>{const k=(soundMode()+1)%3;setSoundMode(k);ac_();if(k===0){SFX.ding();speak('spiker','Ses açık!',{prio:true})}else if(k===1){SFX.ding();toast('🎵 Konuşmalar kapalı, efektler açık')}else toast('🔇 Tüm sesler kapalı')};
 if('serviceWorker' in navigator && location.protocol==='https:' && !/claude|anthropic/.test(location.host)){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 
 </script>
